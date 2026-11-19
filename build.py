@@ -475,6 +475,11 @@ def main():
     if path:  # blank page at the root so the real one isn't easy to stumble on
         (ROOT / "site" / "index.html").write_text("<!doctype html><title>.</title>")
     print(f"wrote {out / 'index.html'}")
+    if birds and birds.get("featured"):
+        f = birds["featured"]
+        print(f"birds: {birds.get('count', 'fallback list')} species; bird of the day: {f['name']}"
+              f"{' (rare)' if f['rare'] else ''}; photo: {'yes' if f['photo'] else 'no'}")
+    print(f"weather: {'ok' if weather else 'failed'}; affirmation: {affirmation()}")
 
 
 if __name__ == "__main__":
