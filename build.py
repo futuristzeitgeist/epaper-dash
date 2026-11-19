@@ -13,6 +13,7 @@ usage:
   python build.py --mock     # fake data, for previewing the layout
 """
 
+import base64
 import json
 import os
 import re
@@ -341,7 +342,15 @@ def bird_photo(*names):
         except Exception:
             continue
         if d.get("thumbnail"):
-            return re.sub(r"/\d+px-", "/480px-", d["thumbnail"]["source"])
+            url = re.sub(r"/\d+px-", "/400px-", d["thumbnail"]["source"])
+            try:  # inline it so the e-paper renderer doesn't need to fetch it
+                req = urllib.request.Request(url, headers={"User-Agent": "epaper-dash/1.0 (personal e-paper display)"})
+                with urllib.request.urlopen(req, timeout=20) as r:
+                    mime = r.headers.get_content_type() or "image/jpeg"
+                    return f"data:{mime};base64," + base64.b64encode(r.read()).decode()
+            except Exception as e:
+                print(f"photo download failed: {e}", file=sys.stderr)
+                return url
     return None
 
 
@@ -381,7 +390,7 @@ def get_birds():
         f, rare = (pool[NOW.timetuple().tm_yday % len(pool)] if pool else None), False
     featured = None
     if f:
-        featured = {"name": f["comName"].lower(), "sci": f["sciName"], "where": f["locName"],
+        featured = {"name": f["comName"].lower(), "sci": f["sciName"], "where": re.split(r"--|\(|,", f["locName"])[0].strip(),
                     "when": ago(f["obsDt"]), "rare": rare,
                     "photo": bird_photo(f["comName"], f["sciName"])}
     around = [o["comName"].lower() for o in obs
@@ -478,7 +487,7 @@ def main():
     if birds and birds.get("featured"):
         f = birds["featured"]
         print(f"birds: {birds.get('count', 'fallback list')} species; bird of the day: {f['name']}"
-              f"{' (rare)' if f['rare'] else ''}; photo: {'yes' if f['photo'] else 'no'}")
+              f"{' (rare)' if f['rare'] else ''}; photo: {'embedded' if (f['photo'] or '').startswith('data:') else 'link' if f['photo'] else 'no'}")
     print(f"weather: {'ok' if weather else 'failed'}; affirmation: {affirmation()}")
 
 
