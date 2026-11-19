@@ -1,0 +1,234 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width={{ cfg.display.width }}, initial-scale=1">
+<title>today</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Serif:ital,wght@0,600;1,400&display=block" rel="stylesheet">
+<style>
+  :root {
+    --ink: #000; --paper: #fff;
+    --accent: {{ "#c00000" if cfg.display.color else "#000" }};
+    --mono: "IBM Plex Mono", Menlo, monospace;
+    --serif: "IBM Plex Serif", Georgia, serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: {{ cfg.display.width }}px; height: {{ cfg.display.height }}px; overflow: hidden;
+    background: var(--paper); color: var(--ink);
+    font-family: "IBM Plex Sans", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: none;
+  }
+  ul { list-style: none; }
+
+  .page {
+    display: grid; height: 100%;
+    grid-template-columns: 244px 1fr 258px;
+    grid-template-rows: 1fr 122px;
+    grid-template-areas: "wx today body" "bird bird bird";
+  }
+  .cell { overflow: hidden; }
+  .wx { grid-area: wx; border-right: 2px solid var(--ink); }
+  .today { grid-area: today; padding: 12px 16px 12px; display: flex; flex-direction: column; }
+  .body { grid-area: body; border-left: 2px solid var(--ink); padding: 12px 16px; }
+  .bird { grid-area: bird; border-top: 3px solid var(--ink); display: grid;
+          grid-template-columns: 178px 210px 1fr; }
+
+  .lbl {
+    font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 1.2px;
+    text-transform: uppercase; display: flex; justify-content: space-between; margin-bottom: 6px;
+  }
+  .lbl small { font-weight: 400; letter-spacing: 0; text-transform: none; font-size: 11px; }
+
+  /* ---- date block + weather ---- */
+  .date { background: var(--ink); color: var(--paper); padding: 7px 14px 6px; }
+  .date .d { font-size: 27px; font-weight: 700; line-height: 1; letter-spacing: -0.5px; }
+  .date .s { font-family: var(--mono); font-size: 12px; margin-top: 4px;
+             display: flex; justify-content: space-between; }
+  .wxin { padding: 8px 14px 0; }
+  .now { display: flex; align-items: center; gap: 10px; }
+  .now svg { width: 44px; height: 44px; flex: none; }
+  .temp { font-size: 44px; font-weight: 700; line-height: 1; letter-spacing: -2px; }
+  .desc { font-size: 15px; font-weight: 600; }
+  .sub { font-size: 12.5px; line-height: 1.4; margin-top: 3px; }
+  .hours { display: flex; justify-content: space-between; margin-top: 6px; padding-top: 4px;
+           border-top: 1px solid var(--ink); font-size: 11.5px; text-align: center; }
+  .hours b { display: block; font-size: 15px; }
+
+  .uv { margin: 7px 14px 0; padding-top: 6px; border-top: 2px solid var(--ink); }
+  .uvrow { display: flex; align-items: baseline; gap: 6px; font-size: 12px; }
+  .uvrow .n { font-size: 26px; font-weight: 700; line-height: 1; }
+  .uvrow .gap { width: 10px; }
+  .bars { display: flex; align-items: flex-end; gap: 2px; height: 26px; margin-top: 10px; }
+  .bar { flex: 1; background: var(--ink); min-height: 2px; position: relative; }
+  .bar.hot { background: var(--accent); }
+  .bar.now::after { content: ""; position: absolute; left: 50%; top: -8px; transform: translateX(-50%);
+                    border: 4px solid transparent; border-top-color: var(--ink); border-bottom: 0; }
+  .barlabels { display: flex; gap: 2px; font-family: var(--mono); font-size: 9.5px; margin-top: 2px; }
+  .barlabels span { flex: 1; white-space: nowrap; }
+  .tip { font-size: 11.5px; margin-top: 3px; }
+
+  /* ---- today ---- */
+  .list li { font-size: 18px; line-height: 1.22; padding: 6px 0 6px 20px; position: relative;
+             border-bottom: 1px dotted var(--ink); }
+  .list li:last-child { border-bottom: 0; }
+  .list li::before { content: "\25A1"; position: absolute; left: 0; top: 6px; font-size: 15px; }
+  .list li.bold { font-weight: 700; }
+  .list li.bold::before { content: "!"; left: 4px; font-size: 18px; top: 5px; }
+  .empty { font-size: 15px; font-style: italic; }
+  .more { font-size: 12px; margin-top: 4px; }
+  .ongoing { margin-top: auto; border: 2px solid var(--ink); padding: 6px 10px 7px;
+             font-size: 13px; line-height: 1.3; }
+  .ongoing .lbl { margin-bottom: 3px; }
+  .ongoing li { padding-left: 11px; position: relative; }
+  .ongoing li::before { content: "\00B7"; position: absolute; left: 0; font-weight: 700; }
+  .aff { font-family: var(--serif); font-style: italic; font-size: 15px; text-align: center; padding: 3px 0; }
+
+  /* ---- move + life ---- */
+  .ex { font-size: 17px; font-weight: 700; line-height: 1.15; color: var(--accent); }
+  .ex + .ex, .grp + .ex { margin-top: 5px; }
+  .glbl { font-family: var(--mono); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.5px;
+          margin-top: 4px; }
+  .grp li { font-size: 12.5px; line-height: 1.26; display: flex; justify-content: space-between; gap: 6px; }
+  .grp li .sets { font-family: var(--mono); font-size: 11px; white-space: nowrap; }
+  .life { margin-top: 8px; padding-top: 7px; border-top: 2px solid var(--ink); }
+  .life li { font-size: 14px; display: flex; gap: 8px; align-items: center; padding: 1px 0; }
+  .life .lt { flex: 1; }
+  .life .tag { font-family: var(--mono); font-size: 10.5px; }
+  .box { width: 12px; height: 12px; border: 2px solid var(--ink); flex: none; }
+
+  /* ---- bird strip ---- */
+  .photo { border-right: 2px solid var(--ink); overflow: hidden; background: var(--paper); }
+  .photo img { width: 100%; height: 100%; object-fit: cover; display: block;
+               filter: grayscale(1) contrast(1.25) brightness(1.05); }
+  .photo svg { width: 100%; height: 100%; display: block; }
+  .bod { padding: 10px 14px; border-right: 1px solid var(--ink); }
+  .bod .name { font-family: var(--serif); font-weight: 600; font-size: 21px; line-height: 1.1; }
+  .bod .sci { font-family: var(--serif); font-style: italic; font-size: 13px; margin-top: 2px; }
+  .bod .seen { font-size: 12px; margin-top: 6px; line-height: 1.3; }
+  .rare { display: inline-block; background: var(--accent); color: var(--paper); font-family: var(--mono);
+          font-size: 10px; padding: 1px 5px; letter-spacing: 1px; margin-left: 4px; vertical-align: 2px; }
+  .around { padding: 10px 14px 10px 14px; min-width: 0; }
+  .around ul { columns: 3; column-gap: 8px; }
+  .around li { font-size: 12px; line-height: 1.38; white-space: nowrap; overflow: hidden;
+               text-overflow: ellipsis; }
+</style>
+</head>
+<body>
+{% from "_icons.html" import icon %}
+
+<div class="page">
+
+  <!-- weather + uv -->
+  <div class="cell wx">
+    <div class="date">
+      <div class="d">{{ weekday }}</div>
+      <div class="s"><span>{{ date }}</span><span>{{ updated }}</span></div>
+    </div>
+    {% if weather %}
+    <div class="wxin">
+      <div class="now">{{ icon(weather.icon) }}<div class="temp">{{ weather.temp }}°</div></div>
+      <div class="desc">{{ weather.desc }}</div>
+      <div class="sub">
+        feels {{ weather.feels }}° · {{ weather.hi }}°/{{ weather.lo }}° · rain {{ weather.rain }}%<br>
+        wind {{ weather.wind }} mph · ↑{{ weather.sunrise }} ↓{{ weather.sunset }}
+      </div>
+      {% if weather.upcoming %}
+      <div class="hours">
+        {% for u in weather.upcoming %}<div>{{ u.label }}<b>{{ u.t }}°</b>{{ u.rain }}%</div>{% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    <div class="uv">
+      <div class="lbl">uv</div>
+      <div class="uvrow">
+        <span class="n">{{ weather.uv_now }}</span><span>now · {{ weather.uv_now_label }}</span>
+        <span class="gap"></span>
+        <span class="n">{{ weather.uv_max }}</span><span>max{% if weather.uv_peak %} {{ weather.uv_peak }}{% endif %}</span>
+      </div>
+      <div class="bars">
+        {% for s in weather.uv_strip %}<div class="bar{% if s.v >= 3 %} hot{% endif %}{% if s.now %} now{% endif %}" style="height: {{ (s.v / weather.uv_scale * 100) | round(1) }}%"></div>{% endfor %}
+      </div>
+      <div class="barlabels">{% for s in weather.uv_strip %}<span>{{ s.label }}</span>{% endfor %}</div>
+      <div class="tip">{{ weather.uv_tip }}</div>
+    </div>
+    {% else %}
+    <div class="wxin"><p class="empty">couldn't load weather.</p></div>
+    {% endif %}
+  </div>
+
+  <!-- today -->
+  <div class="cell today">
+    {% set cap = 7 - ([ongoing | length, 1] | max) %}
+    <div class="lbl">today <small>{{ today | length }} thing{{ "" if today | length == 1 else "s" }}</small></div>
+    {% if today %}
+    <ul class="list">
+      {% for t in today[:cap] %}<li{% if t.bold %} class="bold"{% endif %}>{{ t.text }}</li>{% endfor %}
+    </ul>
+    {% if today | length > cap %}<p class="more">+ {{ today | length - cap }} more in keep</p>{% endif %}
+    {% else %}
+    <p class="empty">nothing on the list. nice.</p>
+    {% endif %}
+    <div class="ongoing">
+      {% if ongoing %}
+      <div class="lbl">ongoing</div>
+      <ul>{% for o in ongoing %}<li>{{ o }}</li>{% endfor %}</ul>
+      {% else %}
+      <div class="aff">{{ affirmation }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- move + life -->
+  <div class="cell body">
+    <div class="lbl">move</div>
+    {% for e in exercise %}
+      <div class="ex">{{ e.name }}</div>
+      {% for g in e.groups %}
+      <div class="grp">
+        {% if g.label %}<div class="glbl">{{ g.label }}</div>{% endif %}
+        <ul>{% for it in g["items"] %}{% set parts = it.split("  ", 1) %}<li><span>{{ parts[0] }}</span>{% if parts | length > 1 %}<span class="sets">{{ parts[1] }}</span>{% endif %}</li>{% endfor %}</ul>
+      </div>
+      {% endfor %}
+    {% else %}<div class="ex">rest</div>{% endfor %}
+    <div class="life">
+      <div class="lbl">life</div>
+      <ul>{% for r in life %}<li><span class="box"></span><span class="lt">{{ r.text }}</span>{% if r.tag %}<span class="tag">{{ r.tag }}</span>{% endif %}</li>{% endfor %}</ul>
+    </div>
+  </div>
+
+  <!-- birds -->
+  <div class="cell bird">
+    {% if birds and birds.featured %}{% set f = birds.featured %}
+    <div class="photo">
+      {% if f.photo %}<img src="{{ f.photo }}" alt="">
+      {% else %}
+      <svg viewBox="0 0 178 119" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 96 C 60 92, 120 92, 166 96" stroke-width="3"/>
+        <path d="M70 92 v-8 M84 92 v-8"/>
+        <path d="M58 52 c0-16 12-28 28-28 c12 0 20 6 24 14 l14 2 l-12 6 c2 24-14 40-36 40 c-12 0-22-6-26-14 l-30 14 l18-22 c-4-4-6-8-6-12z" fill="#fff"/>
+        <circle cx="98" cy="36" r="2.5" fill="#000"/>
+        <path d="M70 62 c10 10 26 12 36 4"/>
+        <path d="M66 70 c12 8 28 8 38 2"/>
+      </svg>
+      {% endif %}
+    </div>
+    <div class="bod">
+      <div class="lbl">bird of the day{% if f.rare %}<span class="rare">RARE</span>{% endif %}</div>
+      <div class="name">{{ f.name }}</div>
+      {% if f.sci %}<div class="sci">{{ f.sci }}</div>{% endif %}
+      {% if f.where %}<div class="seen">seen {{ f.when }}<br>{{ f.where | lower }}</div>{% endif %}
+    </div>
+    <div class="around">
+      <div class="lbl">also around{% if birds.count %} <small>{{ birds.count }} species · {{ cfg.birds.days }}d</small>{% endif %}</div>
+      <ul>{% for b in birds.around[:12] %}<li>{{ b }}</li>{% endfor %}</ul>
+    </div>
+    {% else %}
+    <div class="around" style="grid-column: 1 / -1"><div class="lbl">birds</div><p class="empty">couldn't load birds.</p></div>
+    {% endif %}
+  </div>
+
+</div>
+</body>
+</html>

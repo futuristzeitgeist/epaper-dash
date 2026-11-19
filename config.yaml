@@ -1,0 +1,94 @@
+# everything you'd want to tweak lives here.
+
+location:
+  name: south slope
+  lat: 40.6614
+  lon: -73.9866
+  timezone: America/New_York
+
+keep:
+  # the note with your days in it. see README for how it's read.
+  today_note: "DONT LET YOUR DREAMS BE DREAMS"
+  # optional: pull the life list from a keep note instead (one item per line)
+  routine_note: ""
+
+# the "life" checklist. plain text, or text + tag (small label on the right).
+# "every: 3" means it only shows every 3rd day, counting from "start".
+life:
+  - drink water
+  - text: retinol
+    tag: tonight
+    every: 3
+    start: 2026-11-19
+  - text: sunscreen
+    tag: every day
+  - text: moisturizer
+    tag: evening
+  - stretch
+
+# what happens each day. names that match a workout below show its exercises.
+schedule:
+  mon: ["stretch"]
+  tue: ["rest"]
+  wed: ["rest"]
+  thu: ["glutes + core"]
+  fri: ["run", "mid-back/posture + arms"]
+  sat: ["glutes + core"]
+  sun: ["run", "mid-back/posture + arms"]
+
+workouts:
+  glutes + core:
+    - label: bench
+      items:
+        - "hip thrust, kb on hips  3×12"
+    - label: lying down
+      items:
+        - "dead bug  3×8/side"
+        - "side-lying leg raise  2×12/side"
+    - label: standing
+      items:
+        - "kettlebell RDL  3×10"
+        - "goblet squat  2×10"
+        - "suitcase carry  30s/side"
+
+  mid-back/posture + arms:
+    - label: bench, face-down incline
+      items:
+        - "chest-supported row  3×12"
+        - "reverse fly  3×12"
+        - "Y-T raises  2×8 each"
+    - label: floor
+      items:
+        - "push-ups on bars  2×8"
+        - "bird dog  2×8/side"
+    - label: standing
+      items:
+        - "around the worlds  2×10 each way"
+        - "dead hangs  3×15–20s"
+
+birds:
+  radius_km: 5      # 5km from south slope covers prospect park + green-wood
+  days: 3           # how far back to look
+  max_list: 12
+  # used only if there's no EBIRD_KEY. common brooklyn birds in late fall/winter.
+  fallback:
+    - blue jay
+    - northern cardinal
+    - white-throated sparrow
+    - dark-eyed junco
+    - american robin
+    - mourning dove
+    - red-tailed hawk
+    - downy woodpecker
+    - northern mockingbird
+    - european starling
+    - house sparrow
+    - ring-billed gull
+
+display:
+  # field.html is the new layout. dash.html is the original (no birds).
+  template: field.html
+  width: 800
+  height: 480
+  # set true if you have the color model (E1002); false for black and white (E1001)
+  color: false

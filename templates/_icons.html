@@ -1,0 +1,25 @@
+{% macro icon(name) -%}
+<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+{% if name == "sun" %}
+  <circle cx="32" cy="32" r="12"/>
+  {% for a in range(0, 360, 45) %}<line x1="32" y1="6" x2="32" y2="13" transform="rotate({{ a }} 32 32)"/>{% endfor %}
+{% elif name == "partly" %}
+  <circle cx="24" cy="22" r="9"/>
+  {% for a in range(0, 360, 60) %}<line x1="24" y1="4" x2="24" y2="8" transform="rotate({{ a }} 24 22)"/>{% endfor %}
+  <path d="M20 52h28a10 10 0 0 0 0-20 14 14 0 0 0-26-2A11 11 0 0 0 20 52z" fill="#fff"/>
+{% elif name == "rain" %}
+  <path d="M18 40h28a10 10 0 0 0 0-20 14 14 0 0 0-26-2A11 11 0 0 0 18 40z"/>
+  <line x1="22" y1="48" x2="19" y2="56"/><line x1="33" y1="48" x2="30" y2="56"/><line x1="44" y1="48" x2="41" y2="56"/>
+{% elif name == "snow" %}
+  <path d="M18 40h28a10 10 0 0 0 0-20 14 14 0 0 0-26-2A11 11 0 0 0 18 40z"/>
+  <circle cx="22" cy="51" r="2" fill="#000"/><circle cx="32" cy="55" r="2" fill="#000"/><circle cx="42" cy="51" r="2" fill="#000"/>
+{% elif name == "storm" %}
+  <path d="M18 40h28a10 10 0 0 0 0-20 14 14 0 0 0-26-2A11 11 0 0 0 18 40z"/>
+  <path d="M34 42l-6 9h8l-6 9"/>
+{% elif name == "fog" %}
+  <line x1="10" y1="24" x2="54" y2="24"/><line x1="6" y1="34" x2="50" y2="34"/><line x1="14" y1="44" x2="58" y2="44"/>
+{% else %}
+  <path d="M16 46h32a11 11 0 0 0 0-22 15 15 0 0 0-28-2A12 12 0 0 0 16 46z"/>
+{% endif %}
+</svg>
+{%- endmacro %}

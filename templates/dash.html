@@ -1,0 +1,247 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width={{ cfg.display.width }}, initial-scale=1">
+<title>today</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&display=block" rel="stylesheet">
+<style>
+  :root {
+    --ink: #000;
+    --paper: #fff;
+    --accent: {{ "#c00000" if cfg.display.color else "#000" }};
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: {{ cfg.display.width }}px; height: {{ cfg.display.height }}px;
+    overflow: hidden; background: var(--paper); color: var(--ink);
+    font-family: "IBM Plex Sans", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: none; font-smooth: never;
+  }
+  .mono { font-family: "IBM Plex Mono", Menlo, monospace; }
+
+  .top {
+    height: 52px; padding: 0 22px; display: flex; align-items: baseline;
+    justify-content: space-between; border-bottom: 3px solid var(--ink);
+    padding-top: 10px;
+  }
+  .top h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.5px; }
+  .top h1 span { font-weight: 400; }
+  .top .meta { font-size: 13px; }
+
+  .grid {
+    display: grid; grid-template-columns: 250px 1fr 286px;
+    height: calc(100% - 52px);
+  }
+  .col { padding: 14px 18px; overflow: hidden; }
+  .col + .col { border-left: 2px solid var(--ink); }
+
+  h2 {
+    font-family: "IBM Plex Mono", Menlo, monospace; font-size: 13px; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;
+    display: flex; justify-content: space-between;
+  }
+  h2 small { font-weight: 400; letter-spacing: 0; text-transform: none; }
+
+  /* weather */
+  .now { display: flex; align-items: center; gap: 12px; }
+  .now svg { width: 62px; height: 62px; flex: none; }
+  .temp { font-size: 60px; font-weight: 700; line-height: 1; letter-spacing: -2px; }
+  .desc { font-size: 17px; font-weight: 600; margin-top: 4px; }
+  .sub { font-size: 14px; line-height: 1.45; margin-top: 4px; }
+  .hours { display: flex; justify-content: space-between; margin-top: 10px;
+           border-top: 1px solid var(--ink); padding-top: 6px; font-size: 13px; text-align: center; }
+  .hours b { display: block; font-size: 17px; }
+
+  .uv { margin-top: 14px; border-top: 2px solid var(--ink); padding-top: 10px; }
+  .uvrow { display: flex; gap: 16px; }
+  .uvbox .n { font-size: 34px; font-weight: 700; line-height: 1; }
+  .uvbox .l { font-size: 13px; }
+  .bars { display: flex; align-items: flex-end; gap: 2px; height: 46px; margin-top: 10px; }
+  .bar { flex: 1; background: var(--ink); min-height: 2px; position: relative; }
+  .bar.hot { background: var(--accent); }
+  .bar.now::after {
+    content: ""; position: absolute; left: 50%; top: -9px; transform: translateX(-50%);
+    border: 5px solid transparent; border-top-color: var(--ink); border-bottom: 0;
+  }
+  .barlabels { display: flex; gap: 2px; font-size: 10px; margin-top: 2px; }
+  .barlabels span { flex: 1; text-align: left; white-space: nowrap; overflow: visible; }
+  .tip { font-size: 13px; margin-top: 6px; }
+
+  /* lists */
+  ul { list-style: none; }
+  .today li {
+    font-size: 19px; line-height: 1.25; padding: 7px 0 7px 22px; position: relative;
+    border-bottom: 1px solid var(--ink);
+  }
+  .today li::before { content: "\2192"; position: absolute; left: 0; font-weight: 600; }
+  .today li:last-child { border-bottom: 0; }
+  .empty { font-size: 16px; font-style: italic; }
+
+  .mid { display: flex; flex-direction: column; }
+  .ongoing {
+    margin-top: auto; border: 2px solid var(--ink); padding: 6px 10px 7px;
+    font-size: 14px; line-height: 1.3;
+  }
+  .ongoing li { padding-left: 12px; position: relative; }
+  .ongoing li::before { content: "·"; position: absolute; left: 0; font-weight: 700; }
+  .ongoing .aff { font-size: 15px; font-style: italic; text-align: center; padding: 2px 0; }
+  .ongoing small {
+    display: block; font-family: "IBM Plex Mono", Menlo, monospace; font-size: 11px;
+    font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px;
+    color: var(--accent);
+  }
+  .today li.bold { font-weight: 700; }
+  .today li.bold::before { content: "!"; left: 4px; }
+
+  .move { margin-bottom: 10px; }
+  .move .ex { font-size: 19px; font-weight: 700; line-height: 1.15; color: var(--accent); }
+  .move .ex + .ex, .move .grp + .ex { margin-top: 6px; }
+  .grp { margin-top: 3px; }
+  .grp .lbl { font-family: "IBM Plex Mono", Menlo, monospace; font-size: 10px;
+              text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
+  .grp li { font-size: 13.5px; line-height: 1.3; display: flex; justify-content: space-between; gap: 6px; }
+  .grp li .sets { font-family: "IBM Plex Mono", Menlo, monospace; font-size: 12px; white-space: nowrap; }
+
+  .routine { border-top: 2px solid var(--ink); padding-top: 9px; }
+  .routine li { font-size: 15px; line-height: 1.2; display: flex; gap: 9px;
+                align-items: center; padding: 3px 0; }
+  .routine .lt { flex: 1; }
+  .routine .tag { font-family: "IBM Plex Mono", Menlo, monospace; font-size: 11px; }
+  .routine.tight li { font-size: 13.5px; padding: 1px 0; }
+  .routine.tight .box { width: 12px; height: 12px; }
+  .box { width: 16px; height: 16px; border: 2px solid var(--ink); flex: none; }
+</style>
+</head>
+<body>
+
+{% macro icon(name) -%}
+<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+{% if name == "sun" %}
+  <circle cx="32" cy="32" r="12"/>
+  {% for a in range(0, 360, 45) %}<line x1="32" y1="6" x2="32" y2="13" transform="rotate({{ a }} 32 32)"/>{% endfor %}
+{% elif name == "partly" %}
+  <circle cx="24" cy="22" r="9"/>
+  {% for a in range(0, 360, 60) %}<line x1="24" y1="4" x2="24" y2="8" transform="rotate({{ a }} 24 22)"/>{% endfor %}
+  <path d="M20 52h28a10 10 0 0 0 0-20 14 14 0 0 0-26-2A11 11 0 0 0 20 52z" fill="#fff"/>
+{% elif name == "rain" %}
+  <path d="M18 40h28a10 10 0 0 0 0-20 14 14 0 0 0-26-2A11 11 0 0 0 18 40z"/>
+  <line x1="22" y1="48" x2="19" y2="56"/><line x1="33" y1="48" x2="30" y2="56"/><line x1="44" y1="48" x2="41" y2="56"/>
+{% elif name == "snow" %}
+  <path d="M18 40h28a10 10 0 0 0 0-20 14 14 0 0 0-26-2A11 11 0 0 0 18 40z"/>
+  <circle cx="22" cy="51" r="2" fill="#000"/><circle cx="32" cy="55" r="2" fill="#000"/><circle cx="42" cy="51" r="2" fill="#000"/>
+{% elif name == "storm" %}
+  <path d="M18 40h28a10 10 0 0 0 0-20 14 14 0 0 0-26-2A11 11 0 0 0 18 40z"/>
+  <path d="M34 42l-6 9h8l-6 9"/>
+{% elif name == "fog" %}
+  <line x1="10" y1="24" x2="54" y2="24"/><line x1="6" y1="34" x2="50" y2="34"/><line x1="14" y1="44" x2="58" y2="44"/>
+{% else %}
+  <path d="M16 46h32a11 11 0 0 0 0-22 15 15 0 0 0-28-2A12 12 0 0 0 16 46z"/>
+{% endif %}
+</svg>
+{%- endmacro %}
+
+<div class="top">
+  <h1>{{ weekday }} <span>{{ date }}</span></h1>
+  <div class="meta mono">{{ cfg.location.name }} · updated {{ updated }}</div>
+</div>
+
+<div class="grid">
+
+  <!-- weather + uv -->
+  <div class="col">
+    {% if weather %}
+    <div class="now">
+      {{ icon(weather.icon) }}
+      <div class="temp">{{ weather.temp }}°</div>
+    </div>
+    <div class="desc">{{ weather.desc }}</div>
+    <div class="sub">
+      feels {{ weather.feels }}° · {{ weather.hi }}° / {{ weather.lo }}°<br>
+      rain {{ weather.rain }}% · wind {{ weather.wind }} mph<br>
+      <span class="mono">↑ {{ weather.sunrise }} &nbsp;↓ {{ weather.sunset }}</span>
+    </div>
+    {% if weather.upcoming %}
+    <div class="hours">
+      {% for u in weather.upcoming %}
+      <div>{{ u.label }}<b>{{ u.t }}°</b>{{ u.rain }}%</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="uv">
+      <h2>uv</h2>
+      <div class="uvrow">
+        <div class="uvbox"><div class="n">{{ weather.uv_now }}</div><div class="l">now · {{ weather.uv_now_label }}</div></div>
+        <div class="uvbox"><div class="n">{{ weather.uv_max }}</div><div class="l">max{% if weather.uv_peak %} at {{ weather.uv_peak }}{% endif %} · {{ weather.uv_max_label }}</div></div>
+      </div>
+      <div class="bars">
+        {% for s in weather.uv_strip %}
+        <div class="bar{% if s.v >= 3 %} hot{% endif %}{% if s.now %} now{% endif %}"
+             style="height: {{ (s.v / weather.uv_scale * 100) | round(1) }}%"></div>
+        {% endfor %}
+      </div>
+      <div class="barlabels mono">
+        {% for s in weather.uv_strip %}<span>{{ s.label }}</span>{% endfor %}
+      </div>
+      <div class="tip">{{ weather.uv_tip }}</div>
+    </div>
+    {% else %}
+    <h2>weather</h2>
+    <p class="empty">couldn't load weather.</p>
+    {% endif %}
+  </div>
+
+  <!-- today -->
+  <div class="col mid">
+    {% set cap = 7 - ([ongoing | length, 1] | max) %}
+    <h2>today <small>{{ today | length }} thing{{ "" if today | length == 1 else "s" }}</small></h2>
+    {% if today %}
+    <ul class="today">
+      {% for t in today[:cap] %}<li{% if t.bold %} class="bold"{% endif %}>{{ t.text }}</li>{% endfor %}
+    </ul>
+    {% if today | length > cap %}<p class="sub">+ {{ today | length - cap }} more in keep</p>{% endif %}
+    {% else %}
+    <p class="empty">nothing on the list. nice.</p>
+    {% endif %}
+    <div class="ongoing">
+      {% if ongoing %}
+      <small>ongoing</small>
+      <ul>{% for o in ongoing %}<li>{{ o }}</li>{% endfor %}</ul>
+      {% else %}
+      <div class="aff">{{ affirmation }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- exercise + routine -->
+  <div class="col">
+    <div class="move">
+      <h2>move</h2>
+      {% for e in exercise %}
+        <div class="ex">{{ e.name }}</div>
+        {% for g in e.groups %}
+        <div class="grp">
+          {% if g.label %}<div class="lbl">{{ g.label }}</div>{% endif %}
+          <ul>
+            {% for it in g["items"] %}{% set parts = it.split("  ", 1) %}
+            <li><span>{{ parts[0] }}</span>{% if parts | length > 1 %}<span class="sets">{{ parts[1] }}</span>{% endif %}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endfor %}
+      {% else %}<div class="ex">rest</div>{% endfor %}
+    </div>
+    {% set n_ex = exercise | map(attribute="groups") | map("map", attribute="items") | map("map", "length") | map("sum") | sum %}
+    <div class="routine{% if n_ex > 5 %} tight{% endif %}">
+      <h2>life</h2>
+      <ul>
+        {% for r in life %}<li><span class="box"></span><span class="lt">{{ r.text }}</span>{% if r.tag %}<span class="tag">{{ r.tag }}</span>{% endif %}</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

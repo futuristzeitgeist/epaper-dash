@@ -1,0 +1,41 @@
+name: build dashboard
+
+on:
+  schedule:
+    # every 30 min (github sometimes runs these a few minutes late)
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}   # adds a "run workflow" button for testing
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python build.py
+        env:
+          KEEP_EMAIL: ${{ secrets.KEEP_EMAIL }}
+          KEEP_MASTER_TOKEN: ${{ secrets.KEEP_MASTER_TOKEN }}
+          DASH_PATH: ${{ secrets.DASH_PATH }}
+          EBIRD_KEY: ${{ secrets.EBIRD_KEY }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - uses: actions/deploy-pages@v4
