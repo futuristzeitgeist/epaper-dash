@@ -12,6 +12,54 @@ keep:
   # optional: pull the life list from a keep note instead (one item per line)
   routine_note: ""
 
+# one shows per day, in order, then it loops. edit freely.
+affirmations:
+  # yours
+  - i am in a new situation and i am learning new things
+  - i'm allowed to be unreachable to someone who damaged my trust
+  - closure doesn't come from one more conversation. it comes from me deciding what boundaries help me feel whole again
+  - love is never wasted, as they say.
+  - i am changing, mutable, different. i am still me
+  - i know what i want. i can trust my instincts
+  - i know what i don't want (when in doubt)
+  - i can be a friend to myself
+  - i am the authority on my experience
+  - i am free to let go of others' judgements.
+  - it's safe for me to show kindness to myself.
+  - every day is a new opportunity. i won't let self-doubt or judgement hold me back from the future.
+  - THE WORLD IS RICH WITH THE GIFTS OF DELIGHT
+  - fine shyt will spin the block again!
+  - there's nothing i need to do or be to deserve love and life.
+  - there are so many things about me i am proud of
+  - i will live my wildest dreams, have community love and care, and not be afraid. everything will end up ok
+  - people will stand behind me with love and care at every step of the way, even if i can't always feel it
+
+  # in the same spirit
+  - i don't have to have it all figured out today
+  - i get to choose what i carry
+  - my needs are not too much
+  - i'm allowed to change my mind
+  - rest is not something i have to earn
+  - i can start over as many times as i want
+  - the people meant to stay will stay
+  - softness is not the same as weakness
+  - not every feeling is a fact. i can let it pass through
+  - good things are on their way, and some are already here
+  - i'm becoming someone i'd want to be friends with
+  - i can be proud of small things
+
+  # after thich nhat hanh (his ideas, my words)
+  - no mud, no lotus. the hard parts are growing something
+  - this moment is enough. i don't have to go anywhere to be here
+  - breathe in, breathe out. i'm already home
+  - a cloud doesn't die, it becomes rain. nothing good is really lost
+  - i am made of everyone who has ever been kind to me
+  - i can hold my anger like a crying baby. gently, until it settles
+  - today i'll water the good seeds in me
+  - walk slowly today. let each step land
+  - drink the tea like it's the only thing happening
+  - peace is in every step, even the boring ones
+
 # the "life" checklist. plain text, or text + tag (small label on the right).
 # "every: 3" means it only shows every 3rd day, counting from "start".
 life:

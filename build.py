@@ -290,7 +290,8 @@ AFFIRMATIONS = [
 
 
 def affirmation():
-    return AFFIRMATIONS[NOW.timetuple().tm_yday % len(AFFIRMATIONS)]
+    pool = CFG.get("affirmations") or AFFIRMATIONS
+    return str(pool[NOW.timetuple().tm_yday % len(pool)])
 
 
 def get_life():

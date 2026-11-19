@@ -87,6 +87,8 @@
 
   .solo { flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 10px; }
   .solo .aff { font-size: 26px; line-height: 1.3; }
+  .solo .aff.long { font-size: 21px; }
+  .ongoing .aff.long { font-size: 13px; }
 
   /* ---- move + life ---- */
   .ex { font-size: 17px; font-weight: 700; line-height: 1.15; color: var(--accent); }
@@ -165,7 +167,7 @@
   <div class="cell today">
     {% if today is none %}
     <div class="lbl">today</div>
-    <div class="solo"><div class="aff">{{ affirmation }}</div></div>
+    <div class="solo"><div class="aff{% if affirmation | length > 80 %} long{% endif %}">{{ affirmation }}</div></div>
     {% else %}
     {% set cap = 7 - ([ongoing | length, 1] | max) %}
     <div class="lbl">today <small>{{ today | length }} thing{{ "" if today | length == 1 else "s" }}</small></div>
@@ -182,7 +184,7 @@
       <div class="lbl">ongoing</div>
       <ul>{% for o in ongoing %}<li>{{ o }}</li>{% endfor %}</ul>
       {% else %}
-      <div class="aff">{{ affirmation }}</div>
+      <div class="aff{% if affirmation | length > 80 %} long{% endif %}">{{ affirmation }}</div>
       {% endif %}
     </div>
     {% endif %}
