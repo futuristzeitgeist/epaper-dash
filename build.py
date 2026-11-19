@@ -430,11 +430,14 @@ def main():
         except Exception as e:  # keep the screen useful even if weather fails
             print(f"weather failed: {e}", file=sys.stderr)
             weather = None
-        try:
-            ongoing, today = get_today()
-        except Exception as e:
-            print(f"keep failed: {e}", file=sys.stderr)
-            ongoing, today = [], [{"text": "(couldn't reach google keep)", "bold": False}]
+        if not os.environ.get("KEEP_MASTER_TOKEN"):
+            ongoing, today = [], None  # keep not set up: the template shows an affirmation
+        else:
+            try:
+                ongoing, today = get_today()
+            except Exception as e:
+                print(f"keep failed: {e}", file=sys.stderr)
+                ongoing, today = [], [{"text": "(couldn't reach google keep)", "bold": False}]
         exercise, routine = get_exercise(), get_life()
         try:
             birds = get_birds()

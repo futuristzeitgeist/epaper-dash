@@ -85,6 +85,9 @@
   .ongoing li::before { content: "\00B7"; position: absolute; left: 0; font-weight: 700; }
   .aff { font-family: var(--serif); font-style: italic; font-size: 15px; text-align: center; padding: 3px 0; }
 
+  .solo { flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 10px; }
+  .solo .aff { font-size: 26px; line-height: 1.3; }
+
   /* ---- move + life ---- */
   .ex { font-size: 17px; font-weight: 700; line-height: 1.15; color: var(--accent); }
   .ex + .ex, .grp + .ex { margin-top: 5px; }
@@ -160,6 +163,10 @@
 
   <!-- today -->
   <div class="cell today">
+    {% if today is none %}
+    <div class="lbl">today</div>
+    <div class="solo"><div class="aff">{{ affirmation }}</div></div>
+    {% else %}
     {% set cap = 7 - ([ongoing | length, 1] | max) %}
     <div class="lbl">today <small>{{ today | length }} thing{{ "" if today | length == 1 else "s" }}</small></div>
     {% if today %}
@@ -178,6 +185,7 @@
       <div class="aff">{{ affirmation }}</div>
       {% endif %}
     </div>
+    {% endif %}
   </div>
 
   <!-- move + life -->
