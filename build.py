@@ -33,6 +33,12 @@ NOW = datetime.now(TZ)
 if os.environ.get("DASH_NOW"):  # for testing other dates/times
     NOW = datetime.fromisoformat(os.environ["DASH_NOW"]).replace(tzinfo=TZ)
 
+def secret(name):
+    """read a secret, forgiving "NAME value" or "NAME=value" pasted into the value box."""
+    v = (os.environ.get(name) or "").strip()
+    return v.replace("=", " ").split()[-1] if v else ""
+
+
 DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
 MONTHS = ["jan", "feb", "mar", "apr", "may", "jun",
           "jul", "aug", "sep", "oct", "nov", "dec"]
@@ -130,7 +136,7 @@ def keep_client():
     if _keep is None:
         import gkeepapi
         _keep = gkeepapi.Keep()
-        _keep.authenticate(os.environ["KEEP_EMAIL"], os.environ["KEEP_MASTER_TOKEN"])
+        _keep.authenticate(secret("KEEP_EMAIL"), secret("KEEP_MASTER_TOKEN"))
     return _keep
 
 
@@ -345,7 +351,7 @@ def ago(dt_str):
 
 def get_birds():
     bcfg = CFG.get("birds", {})
-    key = os.environ.get("EBIRD_KEY")
+    key = secret("EBIRD_KEY")
     if not key:
         names = bcfg.get("fallback", [])
         if not names:
@@ -430,7 +436,7 @@ def main():
         except Exception as e:  # keep the screen useful even if weather fails
             print(f"weather failed: {e}", file=sys.stderr)
             weather = None
-        if not os.environ.get("KEEP_MASTER_TOKEN"):
+        if not secret("KEEP_MASTER_TOKEN"):
             ongoing, today = [], None  # keep not set up: the template shows an affirmation
         else:
             try:
@@ -442,8 +448,9 @@ def main():
         try:
             birds = get_birds()
         except Exception as e:
-            print(f"birds failed: {e}", file=sys.stderr)
-            birds = None
+            print(f"ebird failed ({e}), using the fallback list", file=sys.stderr)
+            os.environ["EBIRD_KEY"] = ""
+            birds = get_birds()
 
     env = Environment(loader=FileSystemLoader(ROOT / "templates"), autoescape=True)
     html = env.get_template(CFG["display"].get("template", "field.html")).render(
@@ -460,7 +467,7 @@ def main():
         birds=birds,
     )
 
-    path = os.environ.get("DASH_PATH", "").strip("/")
+    path = secret("DASH_PATH").strip("/")
     out = ROOT / "site" / path
     out.mkdir(parents=True, exist_ok=True)
     (out / "index.html").write_text(html)
