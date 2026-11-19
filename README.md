@@ -47,7 +47,7 @@ run `python get_master_token.py` and follow the steps at the top of that file.
    - `KEEP_MASTER_TOKEN`: the token from step 2
    - `EBIRD_KEY` (optional): free key from https://ebird.org/api/keygen. without it,
      the bird list is a fixed set of common brooklyn birds from config.yaml.
-   - `DASH_PATH`: a random string, like `d/k3v9xq2m7p`. the page will live at
+   - `DASH_PATH`: a random string, like `d/<random letters>`. the page will live at
      that path instead of the root.
 3. settings > pages > source: **github actions**.
 4. actions tab > "build dashboard" > run workflow. when it finishes, your page is at
