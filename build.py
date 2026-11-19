@@ -342,7 +342,7 @@ def bird_photo(*names):
         except Exception:
             continue
         if d.get("thumbnail"):
-            url = re.sub(r"/\d+px-", "/400px-", d["thumbnail"]["source"])
+            url = d["thumbnail"]["source"]  # wikimedia only serves its standard sizes
             try:  # inline it so the e-paper renderer doesn't need to fetch it
                 req = urllib.request.Request(url, headers={"User-Agent": "epaper-dash/1.0 (personal e-paper display)"})
                 with urllib.request.urlopen(req, timeout=20) as r:
